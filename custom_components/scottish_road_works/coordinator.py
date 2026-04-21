@@ -135,8 +135,8 @@ class RoadWorksCoordinator(DataUpdateCoordinator[RoadWorksData]):
         upcoming: list[RoadWork] = []
 
         for act in activities.values():
-            status_code = act.get("status_code", "")
-            geometry = act.get("geometry", "")
+            status_code: str = act.get("status_code") or ""
+            geometry: str = act.get("geometry") or ""
             if not geometry:
                 continue
 
