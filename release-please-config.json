@@ -1,0 +1,14 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "custom_components/scottish_road_works/manifest.json",
+          "jsonpath": "$.version"
+        }
+      ]
+    }
+  }
+}

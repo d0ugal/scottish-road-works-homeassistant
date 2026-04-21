@@ -1,0 +1,13 @@
+{
+    "domain": "scottish_road_works",
+    "name": "Scottish Road Works",
+    "codeowners": [
+        "@d0ugal"
+    ],
+    "config_flow": true,
+    "documentation": "https://github.com/d0ugal/scottish-road-works-homeassistant",
+    "iot_class": "cloud_polling",
+    "issue_tracker": "https://github.com/d0ugal/scottish-road-works-homeassistant/issues",
+    "requirements": [],
+    "version": "0.1.0"
+}

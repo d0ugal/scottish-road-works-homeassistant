@@ -1,0 +1,21 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configure Scottish Road Works",
+                "description": "Enter your postcode and search radius to see nearby road works.",
+                "data": {
+                    "postcode": "Postcode",
+                    "radius_km": "Search radius"
+                }
+            }
+        },
+        "error": {
+            "invalid_postcode": "Postcode not found. Please check and try again.",
+            "cannot_connect": "Failed to connect to postcodes.io. Please try again."
+        },
+        "abort": {
+            "already_configured": "This postcode is already configured."
+        }
+    }
+}
