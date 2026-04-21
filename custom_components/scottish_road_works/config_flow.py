@@ -36,9 +36,7 @@ _POSTCODES_IO = "https://api.postcodes.io/postcodes/{}"
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -57,7 +55,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         lng = result.get("longitude")
                         easting = result.get("eastings")
                         northing = result.get("northings")
-                        if lat is None or easting is None:
+                        if not all((lat, lng, easting, northing)):
                             errors["base"] = "invalid_postcode"
                         else:
                             display_postcode = result.get("postcode", postcode)
@@ -67,10 +65,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                                 title=display_postcode,
                                 data={
                                     CONF_POSTCODE: display_postcode,
-                                    CONF_LAT: lat,
-                                    CONF_LNG: lng,
-                                    CONF_EASTING: float(easting),
-                                    CONF_NORTHING: float(northing),
+                                    CONF_LAT: float(lat),  # type: ignore[arg-type]
+                                    CONF_LNG: float(lng),  # type: ignore[arg-type]
+                                    CONF_EASTING: float(easting),  # type: ignore[arg-type]
+                                    CONF_NORTHING: float(northing),  # type: ignore[arg-type]
                                     CONF_RADIUS_KM: radius_km,
                                 },
                             )

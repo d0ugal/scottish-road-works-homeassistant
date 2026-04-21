@@ -122,9 +122,7 @@ class RoadWorksCoordinator(DataUpdateCoordinator[RoadWorksData]):
             resp.raise_for_status()
             zip_bytes = await resp.read()
 
-        return await self.hass.async_add_executor_job(
-            self._parse_and_filter, zip_bytes
-        )
+        return await self.hass.async_add_executor_job(self._parse_and_filter, zip_bytes)
 
     def _parse_and_filter(self, zip_bytes: bytes) -> RoadWorksData:
         with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
@@ -147,20 +145,21 @@ class RoadWorksCoordinator(DataUpdateCoordinator[RoadWorksData]):
                 continue
             e, n = centroid
 
-            dist_m = round(math.sqrt((e - self._home_easting) ** 2 + (n - self._home_northing) ** 2))
+            dist_m = round(
+                math.sqrt((e - self._home_easting) ** 2 + (n - self._home_northing) ** 2)
+            )
             if dist_m > self._radius_m:
                 continue
 
             start = _parse_date(act.get("proposed_start", "") or act.get("actual_start", ""))
             end = _parse_date(act.get("actual_end", "") or act.get("estimated_end", ""))
 
+            works_type_code: str = act.get("works_type_code") or ""
             rw = RoadWork(
-                reference=act.get("activity_reference", ""),
-                street_name=act.get("location", ""),
-                promoter=act.get("promoter", ""),
-                works_type=_WORKS_TYPES.get(
-                    act.get("works_type_code", ""), act.get("works_type_code", "")
-                ),
+                reference=act.get("activity_reference") or "",
+                street_name=act.get("location") or "",
+                promoter=act.get("promoter") or "",
+                works_type=_WORKS_TYPES.get(works_type_code, works_type_code),
                 start_date=start,
                 end_date=end,
                 status=_ACTIVITY_STATUSES.get(status_code, status_code),
