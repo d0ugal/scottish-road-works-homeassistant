@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from homeassistant.components.geo_location import GeolocationEvent
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -13,6 +15,10 @@ from .coordinator import RoadWork, RoadWorksCoordinator
 
 SOURCE_ACTIVE = "scottish_road_works_active"
 SOURCE_UPCOMING = "scottish_road_works_upcoming"
+
+
+def _ref_slug(reference: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", reference.lower()).strip("_")
 
 
 async def async_setup_entry(
@@ -65,6 +71,7 @@ class RoadWorksGeoLocation(CoordinatorEntity[RoadWorksCoordinator], GeolocationE
         super().__init__(coordinator)
         self._reference = reference
         self._attr_unique_id = f"{entry_id}_{reference}"
+        self.entity_id = f"geo_location.scottish_road_works_{_ref_slug(reference)}"
 
     def _work(self) -> RoadWork | None:
         if not self.coordinator.data:
