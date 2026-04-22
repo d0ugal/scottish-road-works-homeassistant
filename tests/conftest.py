@@ -17,12 +17,17 @@ _HA_MODULES = [
     "homeassistant.helpers.device_registry",
     "homeassistant.helpers.entity_platform",
     "homeassistant.helpers.selector",
+    "homeassistant.helpers.storage",
     "homeassistant.helpers.update_coordinator",
     "voluptuous",
 ]
 
 for _mod in _HA_MODULES:
     sys.modules.setdefault(_mod, MagicMock())
+
+# callback is used as a decorator — make it a no-op passthrough so the wrapped
+# function remains callable in tests.
+sys.modules["homeassistant.core"].callback = lambda f: f
 
 
 class _CoordinatorEntity:
