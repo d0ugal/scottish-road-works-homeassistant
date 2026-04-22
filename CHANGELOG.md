@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.2.0...v0.3.0) (2026-04-22)
+
+
+### Features
+
+* use HA home location instead of postcode, raise max radius to 25 km ([26a5b6e](https://github.com/d0ugal/scottish-road-works-homeassistant/commit/26a5b6ef42a2124021c255a88a03d12cb0d1ebf4))
+
+
+### Bug Fixes
+
+* remove CONF_POSTCODE from sensor.py, apply ruff formatting ([94f895c](https://github.com/d0ugal/scottish-road-works-homeassistant/commit/94f895cfd59677e0666aa7d597c715c1a939b31c))
+* replace placeholder icon with red warning triangle ([513772b](https://github.com/d0ugal/scottish-road-works-homeassistant/commit/513772b558898c648928856161e67fc396d860b4))
+
 ## [0.2.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.1.0...v0.2.0) (2026-04-21)
 
 
