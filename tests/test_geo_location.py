@@ -10,6 +10,7 @@ from custom_components.scottish_road_works.geo_location import (
     SOURCE_ACTIVE,
     SOURCE_UPCOMING,
     RoadWorksGeoLocation,
+    _ref_slug,
 )
 
 
@@ -44,6 +45,39 @@ def _make_coordinator(active: list[RoadWork], upcoming: list[RoadWork]) -> Magic
 
 def _make_entity(coordinator, reference: str = "REF-001") -> RoadWorksGeoLocation:
     return RoadWorksGeoLocation(coordinator, reference, "test_entry")
+
+
+# ---------------------------------------------------------------------------
+# entity_id and slugification
+# ---------------------------------------------------------------------------
+
+
+def test_ref_slug_simple():
+    assert _ref_slug("REF-001") == "ref_001"
+
+
+def test_ref_slug_srwr_style():
+    assert _ref_slug("SWS/2024/00123456") == "sws_2024_00123456"
+
+
+def test_ref_slug_strips_leading_trailing_underscores():
+    assert _ref_slug("/REF/") == "ref"
+
+
+def test_entity_id_prefixed_with_domain():
+    work = _make_work(reference="SWS/2024/00123456")
+    coordinator = _make_coordinator(active=[work], upcoming=[])
+    entity = _make_entity(coordinator, "SWS/2024/00123456")
+    assert entity.entity_id == "geo_location.scottish_road_works_sws_2024_00123456"
+
+
+def test_entity_id_stable_regardless_of_name():
+    """entity_id must be derived from reference, not the street name."""
+    work = _make_work(reference="SWS/001", street_name="See Map")
+    coordinator = _make_coordinator(active=[work], upcoming=[])
+    entity = _make_entity(coordinator, "SWS/001")
+    assert entity.entity_id == "geo_location.scottish_road_works_sws_001"
+    assert entity.name == "See Map (Utility works)"
 
 
 # ---------------------------------------------------------------------------

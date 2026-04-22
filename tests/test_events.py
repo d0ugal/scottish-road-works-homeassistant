@@ -6,7 +6,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from custom_components.scottish_road_works.coordinator import RoadWork, RoadWorksData
-from custom_components.scottish_road_works.events import EVENT_NEW_WORK, async_setup_entry
+from custom_components.scottish_road_works.events import (
+    EVENT_NEW_WORK,
+    async_setup_entry,
+)
 
 
 def _make_work(
