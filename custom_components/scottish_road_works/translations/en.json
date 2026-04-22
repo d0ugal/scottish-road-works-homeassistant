@@ -3,19 +3,21 @@
         "step": {
             "user": {
                 "title": "Configure Scottish Road Works",
-                "description": "Enter your postcode and search radius to see nearby road works.",
+                "description": "Road works near your Home Assistant home location will be monitored.",
                 "data": {
-                    "postcode": "Postcode",
                     "radius_km": "Search radius"
+                },
+                "data_description": {
+                    "radius_km": "How far from home to search for road works (0.25–25 km)."
                 }
             }
         },
         "error": {
-            "invalid_postcode": "Postcode not found. Please check and try again.",
+            "location_not_found": "Could not find coordinates for your home location. Check that your Home Assistant location is set correctly.",
             "cannot_connect": "Failed to connect to postcodes.io. Please try again."
         },
         "abort": {
-            "already_configured": "This postcode is already configured."
+            "already_configured": "Scottish Road Works is already configured."
         }
     }
 }

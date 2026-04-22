@@ -13,9 +13,6 @@ from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
     NumberSelectorMode,
-    TextSelector,
-    TextSelectorConfig,
-    TextSelectorType,
 )
 
 from .const import (
@@ -23,14 +20,14 @@ from .const import (
     CONF_LAT,
     CONF_LNG,
     CONF_NORTHING,
-    CONF_POSTCODE,
     CONF_RADIUS_KM,
     DEFAULT_RADIUS_KM,
     DOMAIN,
+    MAX_RADIUS_KM,
 )
 
 _LOGGER = logging.getLogger(__name__)
-_POSTCODES_IO = "https://api.postcodes.io/postcodes/{}"
+_POSTCODES_IO_REVERSE = "https://api.postcodes.io/postcodes?lon={lon}&lat={lat}&limit=1"
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -42,51 +39,47 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            postcode = user_input[CONF_POSTCODE].strip().upper().replace(" ", "")
+            lat = self.hass.config.latitude
+            lon = self.hass.config.longitude
             radius_km = user_input[CONF_RADIUS_KM]
             try:
                 session = async_get_clientsession(self.hass)
-                async with session.get(_POSTCODES_IO.format(postcode)) as resp:
-                    if resp.status == 404:
-                        errors["base"] = "invalid_postcode"
+                url = _POSTCODES_IO_REVERSE.format(lon=lon, lat=lat)
+                async with session.get(url) as resp:
+                    resp.raise_for_status()
+                    data = await resp.json()
+                    results = data.get("result") or []
+                    if not results:
+                        errors["base"] = "location_not_found"
                     else:
-                        resp.raise_for_status()
-                        data = await resp.json()
-                        result = data.get("result") or {}
-                        lat = result.get("latitude")
-                        lng = result.get("longitude")
+                        result = results[0]
                         easting = result.get("eastings")
                         northing = result.get("northings")
-                        if not all((lat, lng, easting, northing)):
-                            errors["base"] = "invalid_postcode"
+                        if not all((easting, northing)):
+                            errors["base"] = "location_not_found"
                         else:
-                            display_postcode = result.get("postcode", postcode)
-                            await self.async_set_unique_id(display_postcode)
+                            await self.async_set_unique_id("home")
                             self._abort_if_unique_id_configured()
                             return self.async_create_entry(
-                                title=display_postcode,
+                                title="Home",
                                 data={
-                                    CONF_POSTCODE: display_postcode,
-                                    CONF_LAT: float(lat),  # type: ignore[arg-type]
-                                    CONF_LNG: float(lng),  # type: ignore[arg-type]
-                                    CONF_EASTING: float(easting),  # type: ignore[arg-type]
-                                    CONF_NORTHING: float(northing),  # type: ignore[arg-type]
+                                    CONF_LAT: float(lat),
+                                    CONF_LNG: float(lon),
+                                    CONF_EASTING: float(easting),
+                                    CONF_NORTHING: float(northing),
                                     CONF_RADIUS_KM: radius_km,
                                 },
                             )
             except Exception:
-                _LOGGER.exception("Error looking up postcode")
+                _LOGGER.exception("Error looking up home coordinates")
                 errors["base"] = "cannot_connect"
 
         schema = vol.Schema(
             {
-                vol.Required(CONF_POSTCODE): TextSelector(
-                    TextSelectorConfig(type=TextSelectorType.TEXT)
-                ),
                 vol.Optional(CONF_RADIUS_KM, default=DEFAULT_RADIUS_KM): NumberSelector(
                     NumberSelectorConfig(
                         min=0.25,
-                        max=10,
+                        max=MAX_RADIUS_KM,
                         step=0.25,
                         mode=NumberSelectorMode.BOX,
                         unit_of_measurement="km",
