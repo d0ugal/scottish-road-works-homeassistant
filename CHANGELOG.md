@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.6.0...v0.7.0) (2026-04-22)
+
+
+### Features
+
+* **geo_location:** set stable entity_id from SRWR reference ([fa1b8d2](https://github.com/d0ugal/scottish-road-works-homeassistant/commit/fa1b8d2e9f9896f276d468ad72551364366453ca))
+
 ## [0.6.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.5.0...v0.6.0) (2026-04-22)
 
 
