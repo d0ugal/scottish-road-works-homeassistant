@@ -15,12 +15,15 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from pyproj import Transformer
 
 from .const import CONF_EASTING, CONF_NORTHING, CONF_RADIUS_KM, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
 _SRWR_DAILY_API = "https://downloads.srwr.scot/export/api/v1/daily/"
+# BNG (EPSG:27700) → WGS84 (EPSG:4326); always_xy gives (lon, lat) order
+_BNG_TO_WGS84 = Transformer.from_crs("EPSG:27700", "EPSG:4326", always_xy=True)
 
 _ACTIVE_STATUSES = {"05", "14", "15", "16"}  # In Progress, In Force, Commenced, Overrun
 _UPCOMING_STATUSES = {"01", "03", "04"}  # Potential, Advance Planning, Proposed
@@ -81,6 +84,8 @@ class RoadWork:
     end_date: date | None
     status: str
     distance_m: int | None = None
+    lat: float | None = None
+    lng: float | None = None
 
 
 @dataclass
@@ -125,60 +130,70 @@ class RoadWorksCoordinator(DataUpdateCoordinator[RoadWorksData]):
         return await self.hass.async_add_executor_job(self._parse_and_filter, zip_bytes)
 
     def _parse_and_filter(self, zip_bytes: bytes) -> RoadWorksData:
-        with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
-            csv_name = next(n for n in zf.namelist() if n.endswith(".csv"))
-            csv_bytes = zf.read(csv_name)
+        return _filter_works(zip_bytes, self._home_easting, self._home_northing, self._radius_m)
 
-        activities = _parse_csv(csv_bytes)
-        today = date.today()
-        active: list[RoadWork] = []
-        upcoming: list[RoadWork] = []
 
-        for act in activities.values():
-            status_code: str = act.get("status_code") or ""
-            geometry: str = act.get("geometry") or ""
-            if not geometry:
-                continue
+def _filter_works(
+    zip_bytes: bytes,
+    home_easting: float,
+    home_northing: float,
+    radius_m: int,
+) -> RoadWorksData:
+    with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+        csv_name = next(n for n in zf.namelist() if n.endswith(".csv"))
+        csv_bytes = zf.read(csv_name)
 
-            centroid = _wkt_centroid(geometry)
-            if centroid is None:
-                continue
-            e, n = centroid
+    activities = _parse_csv(csv_bytes)
+    today = date.today()
+    active: list[RoadWork] = []
+    upcoming: list[RoadWork] = []
 
-            dist_m = round(
-                math.sqrt((e - self._home_easting) ** 2 + (n - self._home_northing) ** 2)
-            )
-            if dist_m > self._radius_m:
-                continue
+    for act in activities.values():
+        status_code: str = act.get("status_code") or ""
+        geometry: str = act.get("geometry") or ""
+        if not geometry:
+            continue
 
-            start = _parse_date(act.get("proposed_start", "") or act.get("actual_start", ""))
-            end = _parse_date(act.get("actual_end", "") or act.get("estimated_end", ""))
+        centroid = _wkt_centroid(geometry)
+        if centroid is None:
+            continue
+        e, n = centroid
 
-            works_type_code: str = act.get("works_type_code") or ""
-            rw = RoadWork(
-                reference=act.get("activity_reference") or "",
-                street_name=act.get("location") or "",
-                promoter=act.get("promoter") or "",
-                works_type=_WORKS_TYPES.get(works_type_code, works_type_code),
-                start_date=start,
-                end_date=end,
-                status=_ACTIVITY_STATUSES.get(status_code, status_code),
-                distance_m=dist_m,
-            )
+        dist_m = round(math.sqrt((e - home_easting) ** 2 + (n - home_northing) ** 2))
+        if dist_m > radius_m:
+            continue
 
-            if start and end and start <= today <= end:
-                active.append(rw)
-            elif start and start > today:
-                upcoming.append(rw)
-            elif status_code in _ACTIVE_STATUSES:
-                active.append(rw)
-            elif status_code in _UPCOMING_STATUSES:
-                upcoming.append(rw)
+        start = _parse_date(act.get("proposed_start", "") or act.get("actual_start", ""))
+        end = _parse_date(act.get("actual_end", "") or act.get("estimated_end", ""))
 
-        active.sort(key=lambda w: w.start_date or date.min)
-        upcoming.sort(key=lambda w: w.start_date or date.max)
+        works_type_code: str = act.get("works_type_code") or ""
+        lng, lat = _BNG_TO_WGS84.transform(e, n)
+        rw = RoadWork(
+            reference=act.get("activity_reference") or "",
+            street_name=act.get("location") or "",
+            promoter=act.get("promoter") or "",
+            works_type=_WORKS_TYPES.get(works_type_code, works_type_code),
+            start_date=start,
+            end_date=end,
+            status=_ACTIVITY_STATUSES.get(status_code, status_code),
+            distance_m=dist_m,
+            lat=lat,
+            lng=lng,
+        )
 
-        return RoadWorksData(active=active, upcoming=upcoming[:20])
+        if start and end and start <= today <= end:
+            active.append(rw)
+        elif start and start > today:
+            upcoming.append(rw)
+        elif status_code in _ACTIVE_STATUSES:
+            active.append(rw)
+        elif status_code in _UPCOMING_STATUSES:
+            upcoming.append(rw)
+
+    active.sort(key=lambda w: w.start_date or date.min)
+    upcoming.sort(key=lambda w: w.start_date or date.max)
+
+    return RoadWorksData(active=active, upcoming=upcoming[:20])
 
 
 def _parse_csv(csv_bytes: bytes) -> dict[str, dict]:
