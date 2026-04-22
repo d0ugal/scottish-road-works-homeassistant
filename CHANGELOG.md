@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.3.0...v0.4.0) (2026-04-22)
+
+
+### Features
+
+* add geo_location platform to show road works on map ([fb91c2b](https://github.com/d0ugal/scottish-road-works-homeassistant/commit/fb91c2b8267597b158bf4d4459826a1021033c77))
+* use pyproj for BNG→WGS84, store lat/lng on RoadWork ([8f2659a](https://github.com/d0ugal/scottish-road-works-homeassistant/commit/8f2659a2e4d7a7335800d7afb76c14453c599c96))
+
 ## [0.3.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.2.0...v0.3.0) (2026-04-22)
 
 
