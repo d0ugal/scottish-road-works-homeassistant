@@ -23,3 +23,16 @@ _HA_MODULES = [
 
 for _mod in _HA_MODULES:
     sys.modules.setdefault(_mod, MagicMock())
+
+
+class _CoordinatorEntity:
+    def __init__(self, coordinator, *args, **kwargs):
+        self.coordinator = coordinator
+
+    @classmethod
+    def __class_getitem__(cls, item):
+        return cls
+
+
+sys.modules["homeassistant.helpers.update_coordinator"].CoordinatorEntity = _CoordinatorEntity
+sys.modules["homeassistant.components.geo_location"].GeolocationEvent = object
