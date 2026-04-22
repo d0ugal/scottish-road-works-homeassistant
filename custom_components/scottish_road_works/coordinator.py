@@ -146,16 +146,12 @@ class RoadWorksCoordinator(DataUpdateCoordinator[RoadWorksData]):
             e, n = centroid
 
             dist_m = round(
-                math.sqrt(
-                    (e - self._home_easting) ** 2 + (n - self._home_northing) ** 2
-                )
+                math.sqrt((e - self._home_easting) ** 2 + (n - self._home_northing) ** 2)
             )
             if dist_m > self._radius_m:
                 continue
 
-            start = _parse_date(
-                act.get("proposed_start", "") or act.get("actual_start", "")
-            )
+            start = _parse_date(act.get("proposed_start", "") or act.get("actual_start", ""))
             end = _parse_date(act.get("actual_end", "") or act.get("estimated_end", ""))
 
             works_type_code: str = act.get("works_type_code") or ""
