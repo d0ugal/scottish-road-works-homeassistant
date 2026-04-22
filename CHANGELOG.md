@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.5.0...v0.6.0) (2026-04-22)
+
+
+### Features
+
+* fire scottish_road_works_new_work event for new road works ([afdc865](https://github.com/d0ugal/scottish-road-works-homeassistant/commit/afdc8650141936c913a0942de133eeb1e1687a41))
+
 ## [0.5.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.4.0...v0.5.0) (2026-04-22)
 
 
