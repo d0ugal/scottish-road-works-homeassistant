@@ -9,7 +9,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_POSTCODE, DOMAIN
+from .const import DOMAIN
 from .coordinator import RoadWorksCoordinator
 
 
@@ -44,7 +44,7 @@ class RoadWorksSensor(CoordinatorEntity[RoadWorksCoordinator], SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_{kind}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
-            name=f"Scottish Road Works ({entry.data[CONF_POSTCODE]})",
+            name="Scottish Road Works",
         )
 
     @property
