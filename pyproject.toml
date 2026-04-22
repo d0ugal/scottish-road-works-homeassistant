@@ -4,8 +4,8 @@ version = "0.3.0"
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest"]
-integration = ["pytest", "pytest-asyncio", "aiohttp"]
+dev = ["pytest", "pyproj"]
+integration = ["pytest", "pytest-asyncio", "aiohttp", "pyproj"]
 
 [tool.ruff]
 target-version = "py312"
