@@ -1,7 +1,6 @@
 """Tests for the SRWR coordinator."""
 
 import io
-import textwrap
 import zipfile
 from datetime import date
 
@@ -14,7 +13,6 @@ from custom_components.scottish_road_works.coordinator import (
     _parse_date,
     _wkt_centroid,
 )
-
 
 # ---------------------------------------------------------------------------
 # BNG → WGS84 coordinate conversion
@@ -94,6 +92,7 @@ def _row(*fields: str) -> str:
 # 099 org row: OrgID at [3], DistrictID at [4], Name at [5]
 _ORG_ROW = _row("1", "099", "", "000001", "002", "Test Council")
 
+
 # 001 activity row: PromoterOrgDistrict at [5], ActivityRef at [6], USRN at [12]
 def _act_row(activity_id: str, ref: str, org_district: str = "000001002") -> str:
     fields = ["1", "001", activity_id, "2024-01-01", "2024-01-02", org_district, ref]
@@ -103,7 +102,9 @@ def _act_row(activity_id: str, ref: str, org_district: str = "000001002") -> str
 
 
 # 007 works row: Location at [6], works_type_code at [9], status_code at [10], geometry at [12]
-def _works_row(activity_id: str, location: str, status: str, geometry: str, wtype: str = "01") -> str:
+def _works_row(
+    activity_id: str, location: str, status: str, geometry: str, wtype: str = "01"
+) -> str:
     fields = ["1", "007", activity_id, "2024-01-01", "2024-01-02", "Desc", location]
     fields += ["1", "Tmpl", wtype, status, "0", geometry]
     return ",".join(fields)
@@ -171,26 +172,32 @@ def _build_zip(csv_content: str) -> bytes:
     return buf.getvalue()
 
 
-_CSV_NEARBY = "\n".join([
-    _ORG_ROW,
-    _act_row("ACT010", "REF-010"),
-    _works_row("ACT010", "High Street", "05", "POINT (325100 673100)"),
-    _dates_row("ACT010", "2024-06-01", "2030-12-31"),
-])
+_CSV_NEARBY = "\n".join(
+    [
+        _ORG_ROW,
+        _act_row("ACT010", "REF-010"),
+        _works_row("ACT010", "High Street", "05", "POINT (325100 673100)"),
+        _dates_row("ACT010", "2024-06-01", "2030-12-31"),
+    ]
+)
 
-_CSV_FAR = "\n".join([
-    _ORG_ROW,
-    _act_row("ACT011", "REF-011"),
-    _works_row("ACT011", "Far Street", "05", "POINT (400000 700000)"),
-    _dates_row("ACT011", "2024-06-01", "2030-12-31"),
-])
+_CSV_FAR = "\n".join(
+    [
+        _ORG_ROW,
+        _act_row("ACT011", "REF-011"),
+        _works_row("ACT011", "Far Street", "05", "POINT (400000 700000)"),
+        _dates_row("ACT011", "2024-06-01", "2030-12-31"),
+    ]
+)
 
-_CSV_UPCOMING = "\n".join([
-    _ORG_ROW,
-    _act_row("ACT012", "REF-012"),
-    _works_row("ACT012", "Future Road", "04", "POINT (325100 673100)"),
-    _dates_row("ACT012", "2099-01-01", "2099-12-31"),
-])
+_CSV_UPCOMING = "\n".join(
+    [
+        _ORG_ROW,
+        _act_row("ACT012", "REF-012"),
+        _works_row("ACT012", "Future Road", "04", "POINT (325100 673100)"),
+        _dates_row("ACT012", "2099-01-01", "2099-12-31"),
+    ]
+)
 
 
 def test_filter_works_includes_nearby():
