@@ -11,7 +11,8 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import RoadWork, RoadWorksCoordinator
 
-SOURCE = "scottish_road_works"
+SOURCE_ACTIVE = "scottish_road_works_active"
+SOURCE_UPCOMING = "scottish_road_works_upcoming"
 
 
 async def async_setup_entry(
@@ -54,7 +55,6 @@ async def async_setup_entry(
 
 class RoadWorksGeoLocation(CoordinatorEntity[RoadWorksCoordinator], GeolocationEvent):
     _attr_should_poll = False
-    _attr_source = SOURCE
 
     def __init__(
         self,
@@ -75,9 +75,20 @@ class RoadWorksGeoLocation(CoordinatorEntity[RoadWorksCoordinator], GeolocationE
         return None
 
     @property
+    def source(self) -> str:
+        if self.coordinator.data:
+            for w in self.coordinator.data.active:
+                if w.reference == self._reference:
+                    return SOURCE_ACTIVE
+        return SOURCE_UPCOMING
+
+    @property
     def name(self) -> str:
         w = self._work()
-        return w.street_name if w and w.street_name else self._reference
+        if not w:
+            return self._reference
+        street = w.street_name or self._reference
+        return f"{street} ({w.works_type})" if w.works_type else street
 
     @property
     def latitude(self) -> float | None:
