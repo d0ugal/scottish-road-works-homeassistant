@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.4.0...v0.5.0) (2026-04-22)
+
+
+### Features
+
+* **geo_location:** separate active/upcoming sources and improve entity names ([0afd985](https://github.com/d0ugal/scottish-road-works-homeassistant/commit/0afd9857f078f3cdfa175f694b41fbfb8907626b))
+
 ## [0.4.0](https://github.com/d0ugal/scottish-road-works-homeassistant/compare/v0.3.0...v0.4.0) (2026-04-22)
 
 
