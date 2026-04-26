@@ -130,7 +130,9 @@ class RoadWorksCoordinator(DataUpdateCoordinator[RoadWorksData]):
         return await self.hass.async_add_executor_job(self._parse_and_filter, zip_bytes)
 
     def _parse_and_filter(self, zip_bytes: bytes) -> RoadWorksData:
-        return _filter_works(zip_bytes, self._home_easting, self._home_northing, self._radius_m)
+        return _filter_works(
+            zip_bytes, self._home_easting, self._home_northing, self._radius_m
+        )
 
 
 def _filter_works(
@@ -163,7 +165,9 @@ def _filter_works(
         if dist_m > radius_m:
             continue
 
-        start = _parse_date(act.get("proposed_start", "") or act.get("actual_start", ""))
+        start = _parse_date(
+            act.get("proposed_start", "") or act.get("actual_start", "")
+        )
         end = _parse_date(act.get("actual_end", "") or act.get("estimated_end", ""))
 
         works_type_code: str = act.get("works_type_code") or ""

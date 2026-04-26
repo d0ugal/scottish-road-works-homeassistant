@@ -4,7 +4,6 @@ from datetime import date
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-
 from custom_components.scottish_road_works.coordinator import RoadWork, RoadWorksData
 from custom_components.scottish_road_works.events import (
     EVENT_NEW_WORK,
@@ -36,14 +35,18 @@ def _make_work(
 def _make_hass() -> tuple[MagicMock, list]:
     fired: list[tuple[str, dict]] = []
     hass = MagicMock()
-    hass.bus.async_fire = MagicMock(side_effect=lambda name, data: fired.append((name, data)))
+    hass.bus.async_fire = MagicMock(
+        side_effect=lambda name, data: fired.append((name, data))
+    )
     hass.async_create_task = MagicMock()
     return hass, fired
 
 
 def _make_coordinator(active=None, upcoming=None):
     coordinator = MagicMock()
-    coordinator.data = RoadWorksData(active=list(active or []), upcoming=list(upcoming or []))
+    coordinator.data = RoadWorksData(
+        active=list(active or []), upcoming=list(upcoming or [])
+    )
     listeners: list = []
 
     def _add_listener(cb):
@@ -76,7 +79,9 @@ async def _setup(hass, coordinator, entry, stored_refs=None):
     store = MagicMock()
     store.async_load = AsyncMock(return_value=stored_refs)
     store.async_save = AsyncMock()
-    with patch("custom_components.scottish_road_works.events.Store", return_value=store):
+    with patch(
+        "custom_components.scottish_road_works.events.Store", return_value=store
+    ):
         await async_setup_entry(hass, entry)
     return store
 
