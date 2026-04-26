@@ -48,7 +48,9 @@ async def async_setup_entry(
         new_entities: list[RoadWorksGeoLocation] = []
         for work in all_works:
             if work.reference not in tracked:
-                entity = RoadWorksGeoLocation(coordinator, work.reference, entry.entry_id)
+                entity = RoadWorksGeoLocation(
+                    coordinator, work.reference, entry.entry_id
+                )
                 tracked[work.reference] = entity
                 new_entities.append(entity)
 
