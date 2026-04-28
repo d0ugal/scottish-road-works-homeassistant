@@ -39,7 +39,5 @@ class _CoordinatorEntity:
         return cls
 
 
-sys.modules["homeassistant.helpers.update_coordinator"].CoordinatorEntity = (
-    _CoordinatorEntity
-)
+sys.modules["homeassistant.helpers.update_coordinator"].CoordinatorEntity = _CoordinatorEntity
 sys.modules["homeassistant.components.geo_location"].GeolocationEvent = object

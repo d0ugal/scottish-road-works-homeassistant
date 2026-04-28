@@ -4,6 +4,7 @@ from datetime import date
 from unittest.mock import MagicMock
 
 import pytest
+
 from custom_components.scottish_road_works.coordinator import RoadWork, RoadWorksData
 from custom_components.scottish_road_works.geo_location import (
     SOURCE_ACTIVE,
@@ -121,9 +122,7 @@ def test_source_falls_back_to_upcoming_when_no_data():
 
 
 def test_name_includes_street_and_type():
-    work = _make_work(
-        reference="REF-001", street_name="High Street", works_type="Utility works"
-    )
+    work = _make_work(reference="REF-001", street_name="High Street", works_type="Utility works")
     coordinator = _make_coordinator(active=[work], upcoming=[])
     entity = _make_entity(coordinator, "REF-001")
     assert entity.name == "High Street (Utility works)"

@@ -5,6 +5,7 @@ import zipfile
 from datetime import date
 
 import pytest
+
 from custom_components.scottish_road_works.coordinator import (
     _BNG_TO_WGS84,
     _filter_works,
@@ -31,12 +32,8 @@ from custom_components.scottish_road_works.coordinator import (
 )
 def test_bng_to_wgs84(easting, northing, expected_lat, expected_lon, tol):
     lon, lat = _BNG_TO_WGS84.transform(easting, northing)
-    assert (
-        abs(lat - expected_lat) < tol
-    ), f"lat {lat} not within {tol} of {expected_lat}"
-    assert (
-        abs(lon - expected_lon) < tol
-    ), f"lon {lon} not within {tol} of {expected_lon}"
+    assert abs(lat - expected_lat) < tol, f"lat {lat} not within {tol} of {expected_lat}"
+    assert abs(lon - expected_lon) < tol, f"lon {lon} not within {tol} of {expected_lon}"
 
 
 # ---------------------------------------------------------------------------
@@ -114,12 +111,8 @@ def _works_row(
 
 
 # 008 dates row: ProposedStart at [4], ActualStart at [6], EstimatedEnd at [8], ActualEnd at [9]
-def _dates_row(
-    activity_id: str, proposed: str, estimated_end: str, actual_end: str = ""
-) -> str:
-    return _row(
-        "1", "008", activity_id, "1", proposed, "0", "", "0", estimated_end, actual_end
-    )
+def _dates_row(activity_id: str, proposed: str, estimated_end: str, actual_end: str = "") -> str:
+    return _row("1", "008", activity_id, "1", proposed, "0", "", "0", estimated_end, actual_end)
 
 
 def _make_csv(*rows: str) -> bytes:
