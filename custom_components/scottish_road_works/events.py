@@ -23,9 +23,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     # Silently absorb whatever is in the feed right now so that existing works
     # don't fire events on every HA restart.
     if coordinator.data:
-        seen |= {
-            w.reference for w in coordinator.data.active + coordinator.data.upcoming
-        }
+        seen |= {w.reference for w in coordinator.data.active + coordinator.data.upcoming}
         await store.async_save(list(seen))
 
     @callback
@@ -49,16 +47,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
                     "promoter": work.promoter,
                     "works_type": work.works_type,
                     "status": work.status,
-                    "start_date": (
-                        work.start_date.isoformat() if work.start_date else None
-                    ),
+                    "start_date": (work.start_date.isoformat() if work.start_date else None),
                     "end_date": work.end_date.isoformat() if work.end_date else None,
                     "distance_m": work.distance_m,
                     "latitude": work.lat,
                     "longitude": work.lng,
-                    "state": (
-                        "active" if work in coordinator.data.active else "upcoming"
-                    ),
+                    "state": ("active" if work in coordinator.data.active else "upcoming"),
                 },
             )
 
